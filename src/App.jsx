@@ -8,22 +8,24 @@ import FindGround from './Pages/FindGround'
 import ContactUs from './Pages/ContactUsPage'
 import AboutUs from './Pages/AboutUsPage'
 import AddTurf from './Components/AddTurf'
+import ShowTurf from './Components/ShowTurf'
 
 const App = () => {
   return (
-   <BrowserRouter>
-   <Routes>
-    <Route path='/' element={<HomePage/>}  />
-    <Route path='/grounds' element={<FindGround/>}  />
-    <Route path='/admin/addground' element={<AddTurf/>}  />
-    <Route path='/contact' element={<ContactUs/>}  />
-    <Route path='/about' element={<AboutUs/>}  />
-    <Route path='/admin' element={<AdminPage/>}  />
-     <Route path='/login' element={<Login/>}  />
-     <Route path='/signup' element={<Signup/>}  />
-   </Routes>
-   </BrowserRouter>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/grounds" element={<FindGround />} />
+        <Route path="/admin/addground" element={<AddTurf />} />
+        <Route path="/admin/showturfs" element={<ShowTurf />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App
