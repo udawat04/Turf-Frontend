@@ -3,9 +3,9 @@ import { assets } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import call_icon  from "../assets/call_icon.svg"
+import call_icon from "../assets/call_icon.svg";
 
-const backendurl = "http://localhost:5000";
+const backendurl = "https://turf-backend-avi5.onrender.com";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,6 +17,8 @@ const Signup = () => {
     password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -26,11 +28,13 @@ const Signup = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     axios.defaults.withCredentials = true;
 
     const { name, email, phone, password } = formData;
     if (!name || !email || !phone || !password) {
       toast.error("All fields are required");
+      setIsLoading(false);
       return;
     }
 
@@ -52,21 +56,11 @@ const Signup = () => {
       }
     } catch (error) {
       console.error("❌ Error occurred in Signup API call");
-      console.log("[Error Object]:", error);
-
-      if (error.response) {
-        console.log("[Backend Error Response]:", error.response);
-        console.log("[Status Code]:", error.response.status);
-        console.log("[Response Data]:", error.response.data);
-      } else if (error.request) {
-        console.log("[No Response Received]:", error.request);
-      } else {
-        console.log("[Axios Config Error]:", error.message);
-      }
-
       toast.error(
-        error?.response?.data?.message || "Signup error, try again later"
+        error?.response?.data?.msg || "Signup error, try again later"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -138,11 +132,45 @@ const Signup = () => {
             />
           </div>
 
+          {/* Button with spinner */}
           <button
             type="submit"
-            className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium"
+            disabled={isLoading}
+            className={`w-full py-2.5 rounded-full font-medium text-white transition-all duration-300 flex justify-center items-center
+              ${
+                isLoading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-indigo-500 to-indigo-900 hover:opacity-90"
+              }
+            `}
           >
-            Signup
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Signing Up...
+              </>
+            ) : (
+              "Signup"
+            )}
           </button>
         </form>
 

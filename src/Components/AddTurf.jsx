@@ -38,11 +38,14 @@ const AddTurf = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      alert("Turf successfully added!");
+      
       const res = await axios.post(`${backendUrl}/admin/addturf`, form);
+      alert("Turf successfully added!");
+      console.log(res,"turf added")
       setForm({ turfName: "", location: "", city: "", price: "" }); // Reset
     } catch (error) {
       alert("Failed to add turf.");
+      console.log(error)
     } finally {
       setLoading(false);
     }

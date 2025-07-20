@@ -13,6 +13,7 @@ const ShowTurf = () => {
         );
         setTurfs(res.data.response || []);
       } catch (error) {
+        console.log(error)
         setTurfs([]);
       } finally {
         setLoading(false);

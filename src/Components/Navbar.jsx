@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MdLocationOn } from "react-icons/md";
 
 const Navbar = () => {
   const [location, setLocation] = useState("Fetching location...");
+  const navigate = useNavigate();
+ const handleLogout = () => {
+   // Clear session/token (customize as needed)
+   localStorage.clear();
+   sessionStorage.clear();
+   navigate("/login");
+ };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -62,12 +69,23 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         <div className="bg-green-50 rounded-full px-4 py-2 flex items-center gap-2 text-green-600 text-sm">
           <MdLocationOn size={22} className="text-green-600" />
-          <span style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+          <span
+            style={{
+              maxWidth: 300,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              display: "block",
+            }}
+          >
             {location}
           </span>
         </div>
-        <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md">
-          <Link to={"/login"}> login</Link>
+        <button
+          className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md cursor-pointer"
+          onClick={handleLogout}
+        >
+          Logout
         </button>
       </div>
     </nav>

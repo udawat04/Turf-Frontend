@@ -8,9 +8,11 @@ const FindGround = () => {
 
   useEffect(() => {
     // Fetch turfs from backend
-    axios.get("http://localhost:5000/admin/getturf").then((res) => {
-      setTurfs(res.data.response);
-    });
+    axios
+      .get("https://turf-backend-avi5.onrender.com/admin/getturf")
+      .then((res) => {
+        setTurfs(res.data.response);
+      });
   }, []);
 
   return (

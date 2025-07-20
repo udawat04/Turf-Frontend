@@ -23,7 +23,10 @@ const AdminPage = () => {
     const sidebarWidth = isSidebarOpen ? 288 : 80; // 72px or 20px (Tailwind w-72/w-20)
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 flex">
-        <div style={{ width: sidebarWidth }} className="h-screen fixed top-0 left-0 z-30">
+        <div
+          style={{ width: sidebarWidth }}
+          className="h-screen fixed top-0 left-0 z-30"
+        >
           <Sidebar
             isOpen={isSidebarOpen}
             toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -34,7 +37,7 @@ const AdminPage = () => {
           />
         </div>
         <main className="flex-1" style={{ marginLeft: sidebarWidth }}>
-          <MainScreen selectedView={selectedView} />
+          <MainScreen selectedView={selectedView} onLogout={handleLogout} />
         </main>
       </div>
     );

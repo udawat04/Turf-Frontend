@@ -1,7 +1,7 @@
 import { Bell, ChevronDown } from "lucide-react";
 import React, { useState } from "react";
 
-const AdminNavbar = () => {
+const AdminNavbar = ({ onLogout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <header className="bg-white h-16 shadow flex items-center justify-between px-4 border-b border-gray-200">
@@ -38,7 +38,10 @@ https://groundbox.in/media/loader1-OHXGJQ5F.png"
             <button className="block w-full text-left px-4 py-2 hover:bg-green-50 text-gray-700">
               Profile
             </button>
-            <button className="block w-full text-left px-4 py-2 hover:bg-orange-50 text-orange-600 font-semibold">
+            <button
+              onClick={onLogout}
+              className="block w-full text-left px-4 py-2 hover:bg-orange-50 text-orange-600 font-semibold"
+            >
               Logout
             </button>
           </div>
