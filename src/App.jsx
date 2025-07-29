@@ -1,31 +1,78 @@
-import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import HomePage from './Pages/HomePage'
-import Login from './Pages/Login'
-import AdminPage from './Pages/AdminPage'
-import Signup from './Pages/Signup'
-import FindGround from './Pages/FindGround'
-import ContactUs from './Pages/ContactUsPage'
-import AboutUs from './Pages/AboutUsPage'
-import AddTurf from './Components/AddTurf'
-import ShowTurf from './Components/ShowTurf'
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import HomePage from "./Pages/HomePage";
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
+import AdminPage from "./Pages/AdminPage";
+import FindGround from "./Pages/FindGround";
+import ContactUs from "./Pages/ContactUsPage";
+import AboutUs from "./Pages/AboutUsPage";
+import AddTurf from "./Components/AddTurf";
+import ShowTurf from "./Components/ShowTurf";
+import ProtectedRoute from "./Components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ProtectedRoute from './Components/ProtectedRoute'
+import TurfDetails from "./Pages/TurfDetails";
 
 const App = () => {
+  const token = localStorage.getItem("token");
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/grounds" element={<FindGround />} />
-        <Route path="/contact" element={<ContactUs />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* Auth Routes */}
+        <Route
+          path="/login"
+          element={!token ? <Login /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/signup"
+          element={!token ? <Signup /> : <Navigate to="/" />}
+        />
 
-        {/* Protected Routes for Admin */}
+        {/* Public Routes (Require Login) */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grounds"
+          element={
+            <ProtectedRoute>
+              <FindGround />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/grounds/:id"
+          element={
+            <ProtectedRoute>
+              <TurfDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <ProtectedRoute>
+              <ContactUs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <ProtectedRoute>
+              <AboutUs />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Routes (Login + Admin Role Required) */}
         <Route
           path="/admin"
           element={
@@ -51,6 +98,8 @@ const App = () => {
           }
         />
       </Routes>
+
+      {/* Toast Notification */}
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -64,6 +113,6 @@ const App = () => {
       />
     </BrowserRouter>
   );
-}
+};
 
-export default App
+export default App;

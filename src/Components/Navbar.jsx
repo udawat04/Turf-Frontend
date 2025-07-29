@@ -5,12 +5,12 @@ import { MdLocationOn } from "react-icons/md";
 const Navbar = () => {
   const [location, setLocation] = useState("Fetching location...");
   const navigate = useNavigate();
- const handleLogout = () => {
-   // Clear session/token (customize as needed)
-   localStorage.clear();
-   sessionStorage.clear();
-   navigate("/login");
- };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -41,7 +41,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="flex justify-between items-center px-8 py-4 shadow-sm bg-white">
+    <nav className="fixed top-0 left-0 w-full z-30 flex justify-between items-center px-8 py-4 shadow-sm bg-white">
       <div className="flex items-center gap-2">
         <img
           src="https://groundbox.in/assets/images/logo.png"
@@ -67,19 +67,9 @@ const Navbar = () => {
         </li>
       </ul>
       <div className="flex items-center gap-4">
-        <div className="bg-green-50 rounded-full px-4 py-2 flex items-center gap-2 text-green-600 text-sm">
+        <div className="bg-green-50 rounded-full px-4 py-2 flex items-center gap-2 text-green-600 text-sm max-w-xs">
           <MdLocationOn size={22} className="text-green-600" />
-          <span
-            style={{
-              maxWidth: 300,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              display: "block",
-            }}
-          >
-            {location}
-          </span>
+          <span className="truncate block max-w-[250px]">{location}</span>
         </div>
         <button
           className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md cursor-pointer"
@@ -93,6 +83,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-// 9116306754
