@@ -1,18 +1,51 @@
-import { MapPin, PlusCircle, ListOrdered, Menu, X, LogOut, User, ChevronDown, Settings } from "lucide-react";
+import {
+  MapPin,
+  PlusCircle,
+  ListOrdered,
+  Menu,
+  X,
+  LogOut,
+  ChevronDown,
+  Settings,
+} from "lucide-react";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }) => {
+const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, user }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
   const menuItems = [
     { icon: <MapPin size={22} />, text: "Add City", path: "/admin" },
-    { icon: <PlusCircle size={22} />, text: "Add Turf", path: "/admin/addground" },
-    { icon: <ListOrdered size={22} />, text: "Show Turfs", path: "/admin/showturfs" },
-    { icon: <Settings size={22} />, text: "Management", path: "/admin/management" },
+    {
+      icon: <PlusCircle size={22} />,
+      text: "Add Turf",
+      path: "/admin/addground",
+    },
+    {
+      icon: <ListOrdered size={22} />,
+      text: "Show Turfs",
+      path: "/admin/showturfs",
+    },
+    {
+      icon: <Settings size={22} />,
+      text: "Management",
+      path: "/admin/management",
+    },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+    window.location.reload();
+  };
 
   return (
     <aside
-      className={`bg-white border-r border-gray-200 shadow-lg ${isOpen ? "w-72" : "w-20"} min-h-screen flex flex-col justify-between transition-all duration-300`}
+      className={`bg-white border-r border-gray-200 shadow-lg ${
+        isOpen ? "w-72" : "w-20"
+      } min-h-screen flex flex-col justify-between transition-all duration-300`}
     >
       <div>
         {/* Logo & App Name */}
@@ -22,13 +55,23 @@ const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }
             alt="GroundBox Logo"
             className="w-10 h-10 rounded-full shadow"
           />
-          {isOpen && <span className="text-2xl font-bold tracking-wide text-orange-500">Ground<span className="text-green-500">Box</span> Admin</span>}
+          {isOpen && (
+            <span className="text-2xl font-bold tracking-wide text-orange-500">
+              Ground<span className="text-green-500">Box</span> Admin
+            </span>
+          )}
         </div>
         {/* Toggle Button */}
-        <div className={`flex ${isOpen ? "justify-end" : "justify-center"} px-4 pb-2`}>
+        <div
+          className={`flex ${
+            isOpen ? "justify-end" : "justify-center"
+          } px-4 pb-2`}
+        >
           <button
             onClick={toggleSidebar}
-            className={`rounded-full p-2 hover:bg-orange-50 transition ${!isOpen && "rotate-180"}`}
+            className={`rounded-full p-2 hover:bg-orange-50 transition ${
+              !isOpen && "rotate-180"
+            }`}
             aria-label="Toggle sidebar"
           >
             {!isOpen ? <Menu color="#ff6600" /> : <X color="#ff6600" />}
@@ -40,7 +83,11 @@ const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }
             {menuItems.map(({ icon, text, path }, index) => (
               <li
                 key={index}
-                className={`flex items-center gap-4 px-6 py-3 rounded-lg cursor-pointer transition-all ${activePath === path ? "bg-orange-100 text-orange-600 font-semibold shadow" : "text-gray-600 hover:bg-green-50 hover:text-green-600"}`}
+                className={`flex items-center gap-4 px-6 py-3 rounded-lg cursor-pointer transition-all ${
+                  activePath === path
+                    ? "bg-orange-100 text-orange-600 font-semibold shadow"
+                    : "text-gray-600 hover:bg-green-50 hover:text-green-600"
+                }`}
                 onClick={() => onSelect(path)}
               >
                 <span className="text-xl">{icon}</span>
@@ -52,23 +99,40 @@ const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }
       </div>
       {/* User Section */}
       <div className="relative px-6 py-8">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setUserMenuOpen(v => !v)}>
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => setUserMenuOpen((v) => !v)}
+        >
           <img
-            src={user?.avatar || "https://randomuser.me/api/portraits/men/75.jpg"}
+            src={
+              user?.avatar || "https://randomuser.me/api/portraits/men/75.jpg"
+            }
             alt="User Avatar"
             className="w-10 h-10 rounded-full border-2 border-green-400 shadow"
           />
           {isOpen && (
             <div className="flex flex-col">
-              <span className="text-gray-800 font-semibold">{user?.name || "Admin User"}</span>
-              <span className="text-xs text-gray-400">{user?.role || "Administrator"}</span>
+              <span className="text-gray-800 font-semibold">
+                {user?.name || "Admin User"}
+              </span>
+              <span className="text-xs text-gray-400">
+                {user?.role || "Administrator"}
+              </span>
             </div>
           )}
-          <ChevronDown className={`ml-auto text-orange-500 transition-transform ${userMenuOpen ? "rotate-180" : "rotate-0"}`} size={18} />
+          <ChevronDown
+            className={`ml-auto text-orange-500 transition-transform ${
+              userMenuOpen ? "rotate-180" : "rotate-0"
+            }`}
+            size={18}
+          />
         </div>
         {userMenuOpen && (
           <div className="absolute left-0 bottom-16 w-full bg-white rounded-lg shadow-lg py-2 z-20 animate-fade-in">
-            <button className="block w-full text-left px-4 py-2 hover:bg-orange-50 text-orange-600 font-semibold" onClick={onLogout}>
+            <button
+              className="block w-full text-left px-4 py-2 hover:bg-orange-50 text-orange-600 font-semibold"
+              onClick={handleLogout}
+            >
               <LogOut size={18} className="inline mr-2 text-red-500" /> Logout
             </button>
           </div>
