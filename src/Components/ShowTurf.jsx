@@ -11,7 +11,7 @@ const ShowTurf = () => {
       try {
         const res = await axios.get(`${backendurl}/admin/turf`);
         console.log("ShowTurf API response:", res.data);
-        setTurfs(res.data.turfs || []);
+        setTurfs(res.data.result || []);
       } catch (error) {
         console.error("Error fetching turfs:", error);
         setTurfs([]);

@@ -24,11 +24,11 @@ const AdminManagement = () => {
         axios.get(`${backendurl}/admin/turf`)
       ]);
       
-      console.log("Cities response:", citiesResponse.data.cities);
-      console.log("Turfs response:", turfsResponse.data.turfs);
+        console.log("Cities response:", citiesResponse.data.result);
+      console.log("Turfs response:", turfsResponse.data.result);
       
-      setCities(citiesResponse.data.cities || []);
-      setTurfs(turfsResponse.data.turfs || []);
+      setCities(citiesResponse.data.result || [])
+      setTurfs(turfsResponse.data.result || []);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to fetch data");
