@@ -5,7 +5,6 @@ import { assets } from "../assets/assets";
 
 const backendurl = "https://turf-backend-avi5.onrender.com";
 
-
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,8 +65,7 @@ const UserProfile = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSaveChanges = async () => {
     setIsLoading(true);
 
     try {
@@ -99,6 +97,17 @@ const UserProfile = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+    });
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const handleDeleteAccount = async () => {
@@ -162,7 +171,7 @@ const UserProfile = () => {
             <p className="text-gray-600">{user.email}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Name
@@ -217,7 +226,8 @@ const UserProfile = () => {
               ) : (
                 <>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handleSaveChanges}
                     disabled={isLoading}
                     className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors disabled:bg-gray-400"
                   >
@@ -225,16 +235,7 @@ const UserProfile = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setFormData({
-                        name: user.name || "",
-                        email: user.email || "",
-                        phone: user.phone || "",
-                      });
-                      setSelectedImage(null);
-                      setImagePreview(null);
-                    }}
+                    onClick={handleCancel}
                     className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
                   >
                     Cancel
@@ -242,7 +243,7 @@ const UserProfile = () => {
                 </>
               )}
             </div>
-          </form>
+          </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
             <button
