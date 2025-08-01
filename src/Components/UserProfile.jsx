@@ -1,91 +1,256 @@
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { assets } from "../assets/assets";
+
+const backendurl = "https://turf-backend-avi5.onrender.com";
+
 
 const UserProfile = () => {
-    const [userData,setUser] = useState(null)
-    const fetchUser = async()=>{
-        try {
-            const response = await fetch(
-              "https://turf-backend-avi5.onrender.com/userget"
-            );
-            const data = await response.json()
-            setUser(data.data)
-            console.log(data);
-        }
-        catch(error){
-            console.log(error)
-        }
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login first");
+        return;
+      }
+
+      const response = await axios.get(`${backendurl}/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUser(response.data.user);
+      setFormData({
+        name: response.data.user.name || "",
+        email: response.data.user.email || "",
+        phone: response.data.user.phone || "",
+      });
+    } catch (error) {
+      toast.error("Failed to fetch profile");
     }
-    console.log(userData,"::::");
-    useEffect(()=>{
-        fetchUser()
-    },[])
-//   const user = {
-//     name: "Shailendra Kumawat",
-//     email: "shailendra@example.com",
-//     bio: "Full Stack Developer | Passionate about building scalable web apps.",
-//     location: "Udaipur, India",
-//     phone: "+91-9876543210",
-//     age: 24,
-//     profilePic: "https://randomuser.me/api/portraits/men/75.jpg",
-//   };
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const formDataToSend = new FormData();
+      
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+      
+      if (selectedImage) {
+        formDataToSend.append("image", selectedImage);
+      }
+
+      const response = await axios.put(`${backendurl}/user/update`, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Profile updated successfully!");
+      setUser(response.data.user);
+      setIsEditing(false);
+      setSelectedImage(null);
+      setImagePreview(null);
+    } catch (error) {
+      toast.error(error.response?.data?.msg || "Failed to update profile");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        const token = localStorage.getItem("token");
+        await axios.delete(`${backendurl}/user/delete`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        toast.success("Account deleted successfully");
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      } catch (error) {
+        toast.error("Failed to delete account");
+      }
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-10">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-10">
-        {userData &&
-          userData.map((user) => (
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              {/* Profile Picture */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 to-green-300 py-8 px-4">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-8 text-white">
+          <h1 className="text-3xl font-bold text-center">Profile</h1>
+        </div>
+
+        <div className="p-6">
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative">
               <img
-                src={`http://localhost:5000${user.profilePic}`}
+                src={imagePreview || user.image || assets.person_icon}
                 alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-indigo-500"
+                className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
               />
+              {isEditing && (
+                <label className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  📷
+                </label>
+              )}
+            </div>
+            <h2 className="text-2xl font-semibold mt-4 text-gray-800">
+              {user.name}
+            </h2>
+            <p className="text-gray-600">{user.email}</p>
+          </div>
 
-              {/* Profile Info */}
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {user.firstName}
-                  </h2>
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-lg text-sm">
-                    Edit Profile
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Phone
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              {!isEditing ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-600 transition-colors disabled:bg-gray-400"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
                   </button>
-                </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData({
+                        name: user.name || "",
+                        email: user.email || "",
+                        phone: user.phone || "",
+                      });
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                    }}
+                    className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
 
-                <p className="text-gray-600 mt-2">{user.bio}</p>
-
-                <div className="mt-4 space-y-2 text-sm text-gray-700">
-                  <div>
-                    <strong>Email:</strong> {user.email}
-                  </div>
-                  <div>
-                    <strong>Phone:</strong> {user.phone}
-                  </div>
-                  <div>
-                    <strong>Location:</strong> {user.city}
-                  </div>
-                  <div>
-                    <strong>Age:</strong> {user.age}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        {/* Additional Info or Tabs */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Activity</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 bg-indigo-100 rounded-lg">
-              <p className="text-sm text-indigo-700">Last Login:</p>
-              <p className="font-medium text-indigo-900">June 2, 2025</p>
-            </div>
-            <div className="p-4 bg-green-100 rounded-lg">
-              <p className="text-sm text-green-700">Status:</p>
-              <p className="font-medium text-green-900">Active</p>
-            </div>
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <button
+              onClick={handleDeleteAccount}
+              className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+            >
+              Delete Account
+            </button>
           </div>
         </div>
       </div>

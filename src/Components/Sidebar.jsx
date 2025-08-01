@@ -1,4 +1,4 @@
-import { MapPin, PlusCircle, ListOrdered, Menu, X, LogOut, User, ChevronDown } from "lucide-react";
+import { MapPin, PlusCircle, ListOrdered, Menu, X, LogOut, User, ChevronDown, Settings } from "lucide-react";
 import React, { useState } from "react";
 
 const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }) => {
@@ -7,6 +7,7 @@ const Sidebar = ({ toggleSidebar, isOpen, onSelect, activePath, onLogout, user }
     { icon: <MapPin size={22} />, text: "Add City", path: "/admin" },
     { icon: <PlusCircle size={22} />, text: "Add Turf", path: "/admin/addground" },
     { icon: <ListOrdered size={22} />, text: "Show Turfs", path: "/admin/showturfs" },
+    { icon: <Settings size={22} />, text: "Management", path: "/admin/management" },
   ];
 
   return (

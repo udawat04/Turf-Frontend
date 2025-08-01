@@ -17,6 +17,8 @@ const Signup = () => {
     password: "",
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -24,6 +26,18 @@ const Signup = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const onSubmitHandler = async (e) => {
@@ -39,20 +53,29 @@ const Signup = () => {
     }
 
     try {
-      const response = await axios.post(`${backendurl}/user/createUser`, {
-        name,
-        email,
-        phone,
-        password,
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", name);
+      formDataToSend.append("email", email);
+      formDataToSend.append("phone", phone);
+      formDataToSend.append("password", password);
+      
+      if (selectedImage) {
+        formDataToSend.append("image", selectedImage);
+      }
+
+      const response = await axios.post(`${backendurl}/user/createUser`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log("[✅ Signup Response]:", response.data);
 
       if (response.status === 200) {
-        toast.success(response.data.message || "Signup Successful");
+        toast.success(response.data.msg || "Signup Successful");
         navigate("/login");
       } else {
-        toast.error(response.data.message || "Signup failed");
+        toast.error(response.data.msg || "Signup failed");
       }
     } catch (error) {
       console.error("❌ Error occurred in Signup API call");
@@ -72,6 +95,27 @@ const Signup = () => {
         </h2>
 
         <form onSubmit={onSubmitHandler}>
+          {/* Profile Image Upload */}
+          <div className="mb-6 flex flex-col items-center">
+            <div className="relative">
+              <img
+                src={imagePreview || assets.person_icon}
+                alt="Profile"
+                className="w-24 h-24 rounded-full object-cover border-4 border-blue-200"
+              />
+              <label className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                📷
+              </label>
+            </div>
+            <p className="text-xs text-gray-400 mt-2">Click to upload profile picture</p>
+          </div>
+
           {/* Name */}
           <div className="mb-4 flex items-center gap-3 w-full px-5 py-2.5 rounded-full bg-[#333A5C]">
             <img src={assets.person_icon} alt="user icon" />

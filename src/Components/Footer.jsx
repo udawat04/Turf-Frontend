@@ -101,21 +101,7 @@ const Footer = () => {
         </div>
 
         {/* Add New Ground CTA */}
-        <div className="flex justify-center items-start">
-          <a
-            href="https://groundbox.in/add-your-ground"
-            target="_blank"
-            rel="noreferrer"
-            className="bg-gradient-to-r from-orange-500 to-green-500 text-white px-6 py-3 rounded-xl font-medium flex items-center space-x-2 shadow-md hover:scale-105 transition"
-          >
-            <img
-              src="https://groundbox.in/assets/images/logo.png"
-              alt="Add"
-              className="h-6 w-6"
-            />
-            <span>Add New Ground</span>
-          </a>
-        </div>
+       
       </div>
 
       {/* Bottom Bar */}
@@ -154,14 +140,7 @@ const Footer = () => {
       </div>
 
       {/* WhatsApp Button */}
-      <a
-        href="https://wa.me/your-whatsapp-number"
-        className="fixed bottom-5 right-5 bg-green-500 text-white p-3 rounded-full shadow-lg hover:scale-105 transition"
-        target="_blank"
-        rel="noreferrer"
-      >
-        <FaWhatsapp className="text-2xl" />
-      </a>
+    
     </footer>
   );
 };

@@ -9,6 +9,8 @@ import ContactUs from "./Pages/ContactUsPage";
 import AboutUs from "./Pages/AboutUsPage";
 import AddTurf from "./Components/AddTurf";
 import ShowTurf from "./Components/ShowTurf";
+import UserProfile from "./Components/UserProfile";
+import AdminManagement from "./Components/AdminManagement";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -71,6 +73,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin Routes (Login + Admin Role Required) */}
         <Route
@@ -94,6 +104,14 @@ const App = () => {
           element={
             <ProtectedRoute role="admin">
               <ShowTurf />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/management"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminManagement />
             </ProtectedRoute>
           }
         />

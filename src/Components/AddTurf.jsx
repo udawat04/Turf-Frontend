@@ -1,110 +1,202 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+
+const backendurl = "https://turf-backend-avi5.onrender.com";
 
 const AddTurf = () => {
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     turfName: "",
-    location: "",
     city: "",
+    location: "",
     price: "",
   });
-
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [cities, setCities] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  const backendUrl = "https://turf-backend-avi5.onrender.com"; // change to your backend URL
-
-  // 🔄 Fetch cities from API
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const res = await axios.get(`${backendUrl}/admin/getcity`);
-        setCities(res.data.response || []);
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      }
-    };
     fetchCities();
   }, []);
 
-  // 🔧 Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get(`${backendurl}/admin/city`);
+      setCities(response.data.cities || []);
+    } catch (error) {
+      console.error("Failed to fetch cities:", error);
+    }
   };
 
-  // 🚀 Submit form data to API
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
+
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login as admin");
+        return;
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("turfName", formData.turfName);
+      formDataToSend.append("city", formData.city);
+      formDataToSend.append("location", formData.location);
+      formDataToSend.append("price", formData.price);
       
-      const res = await axios.post(`${backendUrl}/admin/addturf`, form);
-      alert("Turf successfully added!");
-      console.log(res,"turf added")
-      setForm({ turfName: "", location: "", city: "", price: "" }); // Reset
+      if (selectedImage) {
+        formDataToSend.append("image", selectedImage);
+      }
+
+      await axios.post(`${backendurl}/admin/turf`, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Turf added successfully!");
+      setFormData({
+        turfName: "",
+        city: "",
+        location: "",
+        price: "",
+      });
+      setSelectedImage(null);
+      setImagePreview(null);
     } catch (error) {
-      alert("Failed to add turf.");
-      console.log(error)
+      toast.error(error.response?.data?.msg || "Failed to add turf");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-gradient-to-br from-white to-green-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-xl px-8 py-10 w-full max-w-xl flex flex-col gap-6 border border-orange-100"
-      >
-        <h2 className="text-2xl font-bold text-center text-orange-500 mb-2">Add Turf</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Add New Turf
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Turf Name
+          </label>
           <input
+            type="text"
             name="turfName"
-            value={form.turfName}
-            onChange={handleChange}
-            placeholder="Turf Name"
+            value={formData.turfName}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter turf name"
             required
-            className="px-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 text-lg"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            City
+          </label>
           <select
             name="city"
-            value={form.city}
-            onChange={handleChange}
+            value={formData.city}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-            className="px-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 text-lg"
           >
-            <option value="">Select City</option>
+            <option value="">Select a city</option>
             {cities.map((city) => (
               <option key={city._id} value={city.city}>
                 {city.city}
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Location
+          </label>
           <input
+            type="text"
             name="location"
-            value={form.location}
-            onChange={handleChange}
-            placeholder="Turf Location"
+            value={formData.location}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter location"
             required
-            className="px-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 text-lg"
-          />
-          <input
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            type="number"
-            placeholder="Price per Slot"
-            required
-            className="px-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 text-lg"
           />
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Price per Hour
+          </label>
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter price"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Turf Image (Optional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {imagePreview && (
+            <div className="mt-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-md border"
+              />
+            </div>
+          )}
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
-          className="bg-gradient-to-r from-orange-500 to-green-500 hover:from-orange-600 hover:to-green-600 text-white font-semibold py-3 rounded-lg shadow-md transition text-lg mt-2"
+          disabled={isLoading}
+          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors
+            ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }
+          `}
         >
-          {loading ? "Submitting..." : "Add Turf"}
+          {isLoading ? "Adding..." : "Add Turf"}
         </button>
       </form>
     </div>

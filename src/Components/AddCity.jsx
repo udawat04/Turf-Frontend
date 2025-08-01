@@ -1,44 +1,128 @@
 // src/Components/AddCity.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
+
+const backendurl = "https://turf-backend-avi5.onrender.com";
 
 const AddCity = () => {
-  const [city, setCity] = useState("");
+  const [formData, setFormData] = useState({
+    city: "",
+  });
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await axios.post(
-      "https://turf-backend-avi5.onrender.com/admin/addcity",
-      { city }
-    );
-    console.log("City added:", res.data);
-    alert("City successfully added!");
-    setCity("");
+    setIsLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login as admin");
+        return;
+      }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append("city", formData.city);
+      
+      if (selectedImage) {
+        formDataToSend.append("image", selectedImage);
+      }
+
+      const response = await axios.post(`${backendurl}/admin/city`, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("City added successfully!");
+      setFormData({ city: "" });
+      setSelectedImage(null);
+      setImagePreview(null);
+    } catch (error) {
+      toast.error(error.response?.data?.msg || "Failed to add city");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-gradient-to-br from-white to-green-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow-xl px-8 py-10 w-full max-w-md flex flex-col gap-6 border border-orange-100"
-      >
-        <h2 className="text-2xl font-bold text-center text-orange-500 mb-2">
-          Add City
-        </h2>
-        <input
-          type="text"
-          placeholder="Enter City Name"
-          name="city"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="w-full px-4 py-3 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-700 text-lg"
-          required
-        />
+    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        Add New City
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            City Name
+          </label>
+          <input
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter city name"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            City Image (Optional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {imagePreview && (
+            <div className="mt-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-md border"
+              />
+            </div>
+          )}
+        </div>
+
         <button
           type="submit"
-          className="bg-gradient-to-r from-orange-500 to-green-500 hover:from-orange-600 hover:to-green-600 text-white font-semibold py-3 rounded-lg shadow-md transition text-lg"
+          disabled={isLoading}
+          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors
+            ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
+            }
+          `}
         >
-          Add City
+          {isLoading ? "Adding..." : "Add City"}
         </button>
       </form>
     </div>
