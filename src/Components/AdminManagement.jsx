@@ -24,9 +24,13 @@ const AdminManagement = () => {
         axios.get(`${backendurl}/admin/turf`)
       ]);
       
+      console.log("Cities response:", citiesResponse.data.cities);
+      console.log("Turfs response:", turfsResponse.data.turfs);
+      
       setCities(citiesResponse.data.cities || []);
       setTurfs(turfsResponse.data.turfs || []);
     } catch (error) {
+      console.error("Error fetching data:", error);
       toast.error("Failed to fetch data");
     }
   };
@@ -157,67 +161,79 @@ const AdminManagement = () => {
             {/* Cities Tab */}
             {activeTab === "cities" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cities.map((city) => (
-                  <div key={city._id} className="bg-white border rounded-lg shadow-md overflow-hidden">
-                    <img
-                      src={city.image || "https://via.placeholder.com/300x200?text=City"}
-                      alt={city.city}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-4">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">{city.city}</h3>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(city, "city")}
-                          className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(city._id, "city")}
-                          className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
-                        >
-                          Delete
-                        </button>
+                {cities.length === 0 ? (
+                  <div className="col-span-full text-center py-8 text-gray-500">
+                    No cities found
+                  </div>
+                ) : (
+                  cities.map((city) => (
+                    <div key={city._id} className="bg-white border rounded-lg shadow-md overflow-hidden">
+                      <img
+                        src={city.image || "https://via.placeholder.com/300x200?text=City"}
+                        alt={city.city}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">{city.city}</h3>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(city, "city")}
+                            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(city._id, "city")}
+                            className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
 
             {/* Turfs Tab */}
             {activeTab === "turfs" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {turfs.map((turf) => (
-                  <div key={turf._id} className="bg-white border rounded-lg shadow-md overflow-hidden">
-                    <img
-                      src={turf.image || "https://via.placeholder.com/300x200?text=Turf"}
-                      alt={turf.turfName}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-4">
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">{turf.turfName}</h3>
-                      <p className="text-gray-600 mb-1">City: {turf.city}</p>
-                      <p className="text-gray-600 mb-1">Location: {turf.location}</p>
-                      <p className="text-gray-600 mb-3">Price: ₹{turf.price}/hour</p>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(turf, "turf")}
-                          className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(turf._id, "turf")}
-                          className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
-                        >
-                          Delete
-                        </button>
+                {turfs.length === 0 ? (
+                  <div className="col-span-full text-center py-8 text-gray-500">
+                    No turfs found
+                  </div>
+                ) : (
+                  turfs.map((turf) => (
+                    <div key={turf._id} className="bg-white border rounded-lg shadow-md overflow-hidden">
+                      <img
+                        src={turf.image || "https://via.placeholder.com/300x200?text=Turf"}
+                        alt={turf.turfName}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">{turf.turfName}</h3>
+                        <p className="text-gray-600 mb-1">City: {turf.city}</p>
+                        <p className="text-gray-600 mb-1">Location: {turf.location}</p>
+                        <p className="text-gray-600 mb-3">Price: ₹{turf.price}/hour</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(turf, "turf")}
+                            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(turf._id, "turf")}
+                            className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
           </div>

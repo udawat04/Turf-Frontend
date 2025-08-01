@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../Components/Navbar";
 
 const fallbackImages = [
@@ -16,15 +17,28 @@ const TurfDetails = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`https://turf-backend-avi5.onrender.com/admin/getturf`)
-      .then((res) => res.json())
-      .then((data) => {
-        const found = (data.response || []).find((t) => t._id === id);
-        setTurf(found);
+    const fetchTurfDetails = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`https://turf-backend-avi5.onrender.com/admin/turf/${id}`);
+        console.log("Turf details response:", response.data);
+        setTurf(response.data.turf);
+      } catch (error) {
+        console.error("Error fetching turf details:", error);
+        // If individual turf fetch fails, try to get from all turfs
+        try {
+          const allTurfsResponse = await axios.get("https://turf-backend-avi5.onrender.com/admin/turf");
+          const found = (allTurfsResponse.data.result || []).find((t) => t._id === id);
+          setTurf(found);
+        } catch (secondError) {
+          console.error("Error fetching all turfs:", secondError);
+        }
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchTurfDetails();
   }, [id]);
 
   if (loading) {

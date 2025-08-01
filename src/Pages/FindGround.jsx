@@ -18,6 +18,7 @@ const FindGround = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState("");
   const [selectedRating, setSelectedRating] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [collapse, setCollapse] = useState({
     city: true,
     price: true,
@@ -25,16 +26,25 @@ const FindGround = () => {
   });
 
   useEffect(() => {
-    axios
-      .get("https://turf-backend-avi5.onrender.com/admin/getturf")
-      .then((res) => {
-        setTurfs(res.data.response);
-      });
-    axios
-      .get("https://turf-backend-avi5.onrender.com/admin/getcity")
-      .then((res) => {
-        setCities(res.data.response || []);
-      });
+    const fetchData = async () => {
+      try {
+        // Fetch turfs
+        const turfsResponse = await axios.get("https://turf-backend-avi5.onrender.com/admin/turf");
+        console.log("FindGround Turfs response:", turfsResponse.data);
+        setTurfs(turfsResponse.data.result || []);
+        
+        // Fetch cities
+        const citiesResponse = await axios.get("https://turf-backend-avi5.onrender.com/admin/city");
+        console.log("FindGround Cities response:", citiesResponse.data);
+        setCities(citiesResponse.data.result || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, []);
 
   // Filtering and sorting logic
@@ -75,6 +85,17 @@ const FindGround = () => {
     if (type === "price") setSortOrder("");
     if (type === "rating") setSelectedRating(0);
   };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

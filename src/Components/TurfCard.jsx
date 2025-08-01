@@ -74,19 +74,26 @@ const turfData = [
   },
 ];
 
-
-
 const TurfCard = () => {
   const scrollRef = useRef(null);
   const [turfs, setTurfs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch turfs from backend
-    axios
-      .get("https://turf-backend-avi5.onrender.com/admin/getturf")
-      .then((res) => {
-        setTurfs(res.data.response);
-      });
+    const fetchTurfs = async () => {
+      try {
+        const res = await axios.get("https://turf-backend-avi5.onrender.com/admin/turf");
+        console.log("Turf API response:", res.data);
+        setTurfs(res.data.result || []);
+      } catch (error) {
+        console.error("Error fetching turfs:", error);
+        setTurfs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTurfs();
   }, []);
 
   useEffect(() => {
@@ -98,19 +105,28 @@ const TurfCard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="w-full px-4 py-8 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Loading turfs...</p>
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-full overflow-x-auto px-4 py-8 scrollbar-hide"
       ref={scrollRef}
     >
       <div className="flex gap-6 min-w-max">
-      {turfs.map((turf,index) => (
+      {turfs.length > 0 ? turfs.map((turf, index) => (
           <div
-            key={index}
+            key={turf._id || index}
             className="min-w-[260px] bg-gradient-to-br from-white via-gray-50 to-gray-100 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 hover:scale-105 transition-transform duration-300"
           >
             <img
-              src={turfData[index].image}
+              src={turf.image || turfData[index % turfData.length]?.image || "https://groundbox.in/assets/images/logo.png"}
               alt="turf image"
               className="w-full h-48 object-cover rounded-t-3xl"
             />
@@ -129,7 +145,11 @@ const TurfCard = () => {
               </div>
             </div>
           </div>
-      ))}
+      )) : (
+        <div className="w-full text-center py-8">
+          <p className="text-gray-500">No turfs available</p>
+        </div>
+      )}
         </div>
     </div>
   );

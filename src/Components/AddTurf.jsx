@@ -23,9 +23,11 @@ const AddTurf = () => {
   const fetchCities = async () => {
     try {
       const response = await axios.get(`${backendurl}/admin/city`);
-      setCities(response.data.cities || []);
+      console.log("Cities response:", response.data);
+      setCities(response.data.result || []);
     } catch (error) {
       console.error("Failed to fetch cities:", error);
+      toast.error("Failed to fetch cities");
     }
   };
 
@@ -69,13 +71,14 @@ const AddTurf = () => {
         formDataToSend.append("image", selectedImage);
       }
 
-      await axios.post(`${backendurl}/admin/turf`, formDataToSend, {
+      const response = await axios.post(`${backendurl}/admin/turf`, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
+      console.log("Turf added response:", response.data);
       toast.success("Turf added successfully!");
       setFormData({
         turfName: "",
@@ -86,6 +89,7 @@ const AddTurf = () => {
       setSelectedImage(null);
       setImagePreview(null);
     } catch (error) {
+      console.error("Error adding turf:", error);
       toast.error(error.response?.data?.msg || "Failed to add turf");
     } finally {
       setIsLoading(false);

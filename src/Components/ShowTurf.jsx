@@ -4,21 +4,22 @@ import axios from "axios";
 const ShowTurf = () => {
   const [turfs, setTurfs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const backendurl = "https://turf-backend-avi5.onrender.com";
 
   useEffect(() => {
     const fetchTurfs = async () => {
       try {
-        const res = await axios.get(
-          "https://turf-backend-avi5.onrender.com/admin/getturf"
-        );
-        setTurfs(res.data.response || []);
+        const res = await axios.get(`${backendurl}/admin/turf`);
+        console.log("ShowTurf API response:", res.data);
+        setTurfs(res.data.turfs || []);
       } catch (error) {
-        console.log(error)
+        console.error("Error fetching turfs:", error);
         setTurfs([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchTurfs();
   }, []);
 
